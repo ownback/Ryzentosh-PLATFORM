@@ -15,9 +15,9 @@ Class 1 = done for real by the OS path that exists without a SEP; class 3 = need
 
 ## 0. Verdicts
 
-1. **FileVault is a class-1 service**: 25G241 x86_64 still carries a complete software key-wrapping path with no SEP dependency in the enable path
-   (components verified; that enabling it completes end to end here is **inferred**, nothing was enabled). It stays a one-shot test for the
-   Root Orchestrator (RB-0003b §5 item 6). Its security is the software one of a non-T2 Intel Mac (§2).
+1. **FileVault is provisionally class 1**: 25G241 x86_64 still carries a complete software key-wrapping path, and no SEP dependency was found in the enable path
+   (components verified; **how `_sep_enabled` is decided is not identified**, and that enabling completes end to end here is **inferred**: nothing was enabled). It stays a one-shot test for the
+   Root Orchestrator (RB-0003b §5 item 6) before it is called done. Its security is the software one of a non-T2 Intel Mac (§2).
 2. **Keychain and Data Protection work from software class keys** (inferred from the keybag engine in AppleKeyStore; the login and System keychains exist, live).
    One class is SEP-only (class "m", meaning not established).
 3. **Everything that is hardware-bound to the SEP fails cleanly and fast** here: a Secure Enclave key request returns OSStatus -4 at once, Touch ID reports "not available" in ~10 ms,
@@ -50,12 +50,12 @@ Class 1 = done for real by the OS path that exists without a SEP; class 3 = need
 **Components that implement a software path (all verified as present in 25G241; none exercised):**
 
 - **AppleKeyStore.kext** (loaded) holds the whole keybag engine in its x86_64 slice. Strings show the FileVault operations that do not need a SEP: PBKDF2
-  calibration, the `aks_fv_*` commands (including unbind KEK), "Found KEK in FDEKeyStore", `DERIVE_VEK`, and "cant load class keys w/o kek when fv is on".
+  calibration, the `aks_fv_*` commands (including unbind KEK), "Found KEK (len=…) in FDEKeyStore", `DERIVE_VEK`, and "cant load class keys w/o kek when fv is on".
 - The SEP path is **a runtime branch inside the same kext**, not a separate driver on Intel: `_sep_enabled`, `sep_wait_for_reply`, `expect_sep_firmware_to_be_loaded`,
   a SEP timeout multiplier, `sep-booted`, `sepfw-load-at-boot`. The kext lists `AppleSEPManager` as an x86_64 dependency, which is why
   `AppleSEPManager` is loaded here without an instance.
 - **AppleSEPKeyStore.kext** has the same personality (IOClass `AppleKeyStore`, `IOResources`) but is **arm64e only** (a proxy to `sep-endpoint,sks`), so it cannot match here.
-- **AppleFDEKeyStore.kext** (loaded) imports the unlock material from the booter handoff (`IODeviceTree:/efi/platform` property `boot-info-payload`; types key, passphrase, key master).
+- **AppleFDEKeyStore.kext** (loaded) imports the unlock material from the booter handoff (a `boot-info-payload` variable, GUID-qualified, read from `IODeviceTree:/efi/platform`, which is inferred; types key, passphrase, key master).
 - **apfs.kext** has software crypto as a supported mode ("software crypto DATA volume", AES-XTS) and refuses volume-key caching on non-hardware containers ("only SEP-wrapped volume keys may be cached").
 - **Userland:** `AppleKeyStore.framework` exports the `aks_fv_*` family; `fdesetup` has no SEP or T2 gate in the strings read (apart from authenticated restart).
 
