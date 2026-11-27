@@ -68,9 +68,9 @@ For each: how it is reached, what it does with the signal, and what it does with
 | **USDKit** (AlohaPairingVerifier) | linked by apps that pair Aloha accessories | `performAuthKeySharingWithAppleSSE:…`; names the library by path; exported flag `_sseSkipSEAvailabilityCheck` appears here | normal | not traced | verified (strings); open | DSC string search |
 | **biometrickitd** | launchd on `AppleBiometricServices` (S6) | BiometricKit, BiometricSupport | normal | **never started** (no trigger) | verified | its plist |
 | **eoshostd** | launchd on `AppleEmbeddedOSSupportHost` (S5) | bridge support | normal | never started | verified | its plist |
-| **keybagd / AppleKeyStore / AppleFDEKeyStore** | `keybagd` RunAtLoad; kexts matched on IOResources | key bags | SEP-backed on T2 | **run without a SEP** | verified (loaded, running) | `live: ps`, `kmutil showloaded` |
+| **keybagd / AppleKeyStore / AppleFDEKeyStore** | `keybagd` RunAtLoad; kexts matched on IOResources | key bags; AppleKeyStore has a runtime SEP branch (`_sep_enabled`, `sep-booted`, `sep_wait_for_reply` with a timeout multiplier) | SEP-backed on T2 | **run in software without a SEP**. A faked SEP signal would send key operations into the SEP wait (RB-0003f §0) | verified (loaded, running, strings); inferred (branch decision) | `live: ps`, `kmutil showloaded`; KDK:AppleKeyStore strings (RB-0003f) |
 
-The SEP-related consumers beyond this table (coreauthd, LocalAuthentication, securityd, FileVault tools) belong to RB-0003f.
+The other SEP-related consumers (coreauthd, LocalAuthentication, securityd, FileVault tools, biometrickitd's remote device lookup) are covered in RB-0003f.
 
 ## 3. libAppleSSE: what happens with no service (read from the 25G241 binary)
 
