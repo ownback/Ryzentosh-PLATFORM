@@ -3,18 +3,21 @@
 Updated: 2026-11-27 by the Project Lead (claude-sonnet-5-5 / high).
 
 ## Phase
-Research. RB-0003e (#1) and RB-0003f (#2) are in one draft PR from branch `research/1-2-t2-presence-sep` (PR #5).
+Research. RB-0003e (#1) and RB-0003f (#2) are done and merged (PR #5, e4d9cd1).
 
-## Done (PR #5)
+## Done
 - `docs/LLMs/re/RB-0003e-t2-presence.md`: signals, consumers, libAppleSSE's three outcomes, requestors (Safari -> passd, seld -> nfcd), options F0-F5. Verdict for #4: remove RyzentoshSSE, accept the SE-less behaviour (F4); no SSE code in PLATFORM.
-- `docs/LLMs/re/RB-0003f-sep-features.md`: FileVault software path (provisionally class 1, one-shot test pending), keychain, Touch ID, Apple Pay, Secure Enclave keys, Activation Lock, Find My.
-- Independent review by claude-fable-5-2: ready after fixes; fixes applied.
+- `docs/LLMs/re/RB-0003f-sep-features.md`: FileVault software path (provisionally class 1), keychain, Touch ID, Apple Pay, Secure Enclave keys, Activation Lock, Find My.
+- Independent review (claude-fable-5-2) done, fixes folded in.
+- #4 comment (https://github.com/ownback/Ryzentosh-PLATFORM/issues/4#issuecomment-7228929840): the E-1 test plan for RyzentoshSSE's removal: which processes can wait 30 s (passd, nfcd, seserviced), the log queries, the baseline, and the pass / pass-with-cost / abort criteria.
 
 ## In flight
-Nothing. Waiting for the Root Orchestrator (PR #5 ready for review, then E-1 as a test-boot request when E5 is scheduled).
+Nothing. The removal is an EFI change for the EFI Lead after the current Wi-Fi test; the Lead does not run E-1.
 
 ## Next step
-Orchestrator schedules E-1 (RyzentoshSSE removal measurement) and the FileVault one-shot test; PLATFORM's next work is the NVMe/USB/RestrictEvents jobs for RyzentoshPlatform.kext.
+1. After E-1, update the compatibility-matrix rows (Apple Pay / NFC / Secure Element) from its numbers and close #4.
+2. The FileVault one-shot test waits for an owner decision (Orchestrator raises it).
+3. PLATFORM's next work: the NVMe power, USB map and RestrictEvents jobs for RyzentoshPlatform.kext.
 
 ## Blockers
-None. Open: the PassKitCore static call site, and the unstubbed 30 s wait (unobserved), see RB-0003e section 7.
+None. Open (RB-0003e section 7): the PassKitCore static call site, and the unobserved 30 s wait (E-1 observes it).
